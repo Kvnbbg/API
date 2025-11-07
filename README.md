@@ -14,3 +14,7 @@ Configurer les variables d'environnement via `.env` (voir `.env.example`). Le se
 ## Proxy HTTP/3
 
 Le fichier [`Caddyfile`](./Caddyfile) fournit la configuration recommandée pour exposer l'API via Caddy avec support HTTP/3/QUIC.
+
+## Modernisation & Gouvernance
+
+Le document [**Senior Architect's Modernization Briefing**](./MODERNIZATION_BRIEFING.md) décrit l'état actuel, la feuille de route de modernisation et les artefacts générés (`./artifacts/`). Utilisez-le comme point de départ pour mettre en place CI/CD, sécurité et observabilité.
