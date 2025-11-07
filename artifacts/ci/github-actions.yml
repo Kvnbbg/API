@@ -1,0 +1,211 @@
+name: Modernization CI
+
+description: |
+  GitHub Actions pipeline implementing Senior Developer's Modernization Framework for kvnbbg.fr API.
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/**'
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+  schedule:
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-test:
+    name: Quality & Unit Safety Net
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+        env:
+          CI: 'true'
+
+      - name: Lint (if configured)
+        run: npm run lint --if-present
+
+      - name: Run unit tests (if configured)
+        run: npm test --if-present
+
+      - name: Generate coverage (if configured)
+        run: npm run coverage --if-present
+
+      - name: Upload coverage to Codecov
+        if: ${{ hashFiles('coverage/**') != '' }}
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  security:
+    name: Dependency & Secret Scans
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: lint-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        env:
+          CI: 'true'
+
+      - name: npm audit (production)
+        run: npm audit --production
+
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+
+  codeql:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  docker-image:
+    name: Secure Container Build
+    runs-on: ubuntu-latest
+    needs:
+      - lint-test
+      - security
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          load: true
+          tags: ghcr.io/${{ github.repository }}:ci-${{ github.sha }}
+          provenance: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ github.repository }}:ci-${{ github.sha }}
+          format: table
+          exit-code: '1'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload SBOM
+        uses: anchore/syft-action@v0.16.0
+        with:
+          image: ghcr.io/${{ github.repository }}:ci-${{ github.sha }}
+          output: spdx-json=sbom.spdx.json
+
+      - name: Persist SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.spdx.json
+
+  deploy-preview:
+    name: Ephemeral Preview
+    runs-on: ubuntu-latest
+    needs: docker-image
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Fly.io Preview
+        uses: superfly/fly-pr-deploy-action@1.4
+        with:
+          fly-token: ${{ secrets.FLY_API_TOKEN }}
+          working-directory: .
+          app-name: kvnbbg-api-preview
+          image: ghcr.io/${{ github.repository }}:ci-${{ github.sha }}
+
+      - name: Comment deployment URL
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          message: |
+            🚀 Preview deployment triggered for `${{ github.sha }}`.
+            Once ready, access the app via the Fly.io URL above.
+
+  observability:
+    name: Observability Checks
+    runs-on: ubuntu-latest
+    needs: lint-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify OpenTelemetry config presence
+        run: |
+          if [ ! -f "otel-collector-config.yaml" ]; then
+            echo '::warning file=otel-collector-config.yaml::OpenTelemetry collector config not found. Add one to enable tracing.'
+          fi
+
+      - name: Ensure logging configuration exists
+        run: |
+          if [ ! -f "config/logging.json" ]; then
+            echo '::warning file=config/logging.json::Structured logging config missing. Consider adding pino/winston config.'
+          fi
