@@ -1,0 +1,18 @@
+api.kvnbbg.fr {
+    encode gzip
+    tls contact@techandstream.com
+
+    servers :443 {
+        protocol {
+            experimental_http3
+        }
+    }
+
+    @api path /api/*
+
+    reverse_proxy @api http://127.0.0.1:3000 {
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}

@@ -1,0 +1,20 @@
+# CODEOWNERS template generated under the Senior Developer's Modernization Framework.
+# Move this file to .github/CODEOWNERS (or docs/CODEOWNERS) in the repository root when ready.
+
+# Core backend API ownership
+/src/ @kvnbbg/platform-core @kvnbbg/operations
+
+# Infrastructure-as-code, deployment manifests, and Caddy reverse proxy configuration
+/Caddyfile @kvnbbg/platform-core @kvnbbg/devops
+/artifacts/** @kvnbbg/platform-core @kvnbbg/security
+
+# Security sensitive areas require explicit approval from the security guild
+/src/services/aliexpress.js @kvnbbg/security
+/.env.example @kvnbbg/security
+
+# Documentation gatekeepers
+/README.md @kvnbbg/documentation
+/artifacts/governance/** @kvnbbg/documentation
+
+# Observability and reliability
+artifacts/observability/** @kvnbbg/sre
