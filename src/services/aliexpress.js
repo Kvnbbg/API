@@ -30,9 +30,9 @@ function signParams(params) {
 
 function buildParams(params = {}) {
   const baseParams = {
+    ...params,
     app_key: config.ae.appKey,
-    sign_method: 'md5',
-    ...params
+    sign_method: 'md5'
   };
 
   const normalized = normalizeParams(baseParams);
