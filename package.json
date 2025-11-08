@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node src/index.js",
     "start": "NODE_ENV=production node src/index.js",
-    "lint": "eslint .",
+    "lint": "eslint . --ext .js,.ts",
     "test": "jest --runInBand --ci",
     "build": "echo '✅ build placeholder - no transpile step needed'"
   },
@@ -19,7 +19,11 @@
     "qs": "^6.12.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
     "eslint": "^9.39.1",
+    "globals": "^16.5.0",
     "jest": "^30.2.0"
   }
 }
