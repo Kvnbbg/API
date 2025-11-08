@@ -61,6 +61,7 @@ function buildParams(path, params = {}) {
 
 export async function callAliExpress(path, params = {}) {
   const payload = buildParams(path, params);
-  const { data } = await client.post(path, payload);
+  const endpoint = path.startsWith('/') ? path : '/router/rest';
+  const { data } = await client.post(endpoint, payload);
   return data;
 }
