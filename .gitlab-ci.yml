@@ -1,0 +1,62 @@
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+variables:
+  GIT_DEPTH: 1
+
+lint:
+  stage: lint
+  image: node:20
+  script:
+    - npm ci
+    - npm run lint
+  only:
+    - merge_requests
+    - main
+
+test:
+  stage: test
+  image: node:20
+  script:
+    - npm ci
+    - npm test -- --ci
+  artifacts:
+    when: always
+    paths:
+      - coverage/
+  only:
+    - merge_requests
+    - main
+
+build:
+  stage: build
+  image: node:20
+  script:
+    - npm ci
+    - npm run build
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - echo "🔧 Déploiement déclenché..."
+    # Ici tu mets ton rsync / docker push / kubectl apply
+  only:
+    - main
+  when: manual
+  environment:
+    name: production
+    url: https://kvnbbg.fr
+  dependencies:
+    - build
+  after_script:
+    - echo "✅ Déploiement terminé."
+  tags:
+    - deploy-runner
+  before_script:
+    - echo "🚀 Préparation du déploiement...
