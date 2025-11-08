@@ -2,6 +2,13 @@ import { Router } from 'express';
 import { callAliExpress } from '../services/aliexpress.js';
 import { config } from '../config.js';
 
+function handleAliExpressError(res, err, fallbackMessage) {
+  const status = err?.response?.status && Number.isInteger(err.response.status) ? err.response.status : 500;
+  const details = err?.response?.data || err.message;
+  console.error('[AliExpress]', details);
+  return res.status(status).json({ error: fallbackMessage, details });
+}
+
 const router = Router();
 
 router.post('/auth/token/security/create', async (req, res) => {
@@ -10,14 +17,22 @@ router.post('/auth/token/security/create', async (req, res) => {
     if (!code) {
       return res.status(400).json({ error: 'code is required' });
     }
-    const data = await callAliExpress('/auth/token/security/create', {
-      code,
-      uuid
-    });
+    if (!config.ae.appKey || !config.ae.appSecret) {
+      return res.status(500).json({ error: 'AliExpress credentials not configured' });
+    }
+    const data = await callAliExpress(
+      '/auth/token/security/create',
+      {
+        code,
+        uuid,
+        client_id: config.ae.appKey,
+        client_secret: config.ae.appSecret
+      },
+      { method: 'POST' }
+    );
     res.json(data);
   } catch (err) {
-    console.error(err?.response?.data || err.message);
-    res.status(500).json({ error: 'aliexpress auth failed' });
+    handleAliExpressError(res, err, 'aliexpress auth failed');
   }
 });
 
@@ -45,8 +60,7 @@ router.post('/affiliate/link/generate', async (req, res) => {
 
     res.json(data);
   } catch (err) {
-    console.error(err?.response?.data || err.message);
-    res.status(500).json({ error: 'link.generate failed' });
+    handleAliExpressError(res, err, 'link.generate failed');
   }
 });
 
@@ -80,8 +94,7 @@ router.post('/affiliate/product/smartmatch', async (req, res) => {
 
     res.json(data);
   } catch (err) {
-    console.error(err?.response?.data || err.message);
-    res.status(500).json({ error: 'smartmatch failed' });
+    handleAliExpressError(res, err, 'smartmatch failed');
   }
 });
 
@@ -113,8 +126,7 @@ router.post('/affiliate/featuredpromo/products', async (req, res) => {
 
     res.json(data);
   } catch (err) {
-    console.error(err?.response?.data || err.message);
-    res.status(500).json({ error: 'featuredpromo.products failed' });
+    handleAliExpressError(res, err, 'featuredpromo.products failed');
   }
 });
 
