@@ -15,8 +15,26 @@ const DEFAULT_TOP_PARAMS = {
   v: '2.0'
 };
 
+const beijingFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Shanghai',
+  hour12: false,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit'
+});
+
 function toAliTimestamp(date = new Date()) {
-  return date.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '');
+  const parts = beijingFormatter.formatToParts(date).reduce((acc, part) => {
+    if (part.type !== 'literal') {
+      acc[part.type] = part.value;
+    }
+    return acc;
+  }, {});
+
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
 }
 
 function normalizeBusinessPayload(payload) {
