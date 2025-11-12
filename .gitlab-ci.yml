@@ -59,4 +59,4 @@ deploy:
   tags:
     - deploy-runner
   before_script:
-    - echo "🚀 Préparation du déploiement...
+    - echo "🚀 Préparation du déploiement..."
