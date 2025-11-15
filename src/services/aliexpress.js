@@ -7,6 +7,8 @@ const client = axios.create({
   timeout: 8000
 });
 
+const ALIEXPRESS_ROUTER_PATH = '/router/rest';
+
 function formatTimestamp(date = new Date()) {
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -61,7 +63,7 @@ function buildParams(path, params = {}) {
 
 export async function callAliExpress(path, params = {}) {
   const payload = buildParams(path, params);
-  const endpoint = path.startsWith('/') ? path : '/router/rest';
-  const { data } = await client.post(endpoint, payload);
+  const requestPath = path.startsWith('/') ? path : ALIEXPRESS_ROUTER_PATH;
+  const { data } = await client.post(requestPath, payload);
   return data;
 }
