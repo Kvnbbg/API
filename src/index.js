@@ -8,6 +8,7 @@ import announcementRoutes from './routes/announcement.js';
 import docsRoutes from './routes/docs.js';
 import aeRoutes from './routes/ae.js';
 import supportRoutes from './routes/support.js';
+import { renderLandingPage } from './services/ui.js';
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
 app.get('/', (req, res) => {
-  res.json({
+  const payload = {
     name: 'kvnbbg.fr API',
     version: '0.1.0',
     status: 'ok',
@@ -27,7 +28,14 @@ app.get('/', (req, res) => {
       '/api/ae/*',
       '/support/*'
     ]
-  });
+  };
+
+  if (req.accepts(['html', 'json']) === 'html') {
+    res.type('html').send(renderLandingPage(payload));
+    return;
+  }
+
+  res.json(payload);
 });
 
 app.use('/app-console', appRoutes);
