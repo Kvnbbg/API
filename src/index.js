@@ -44,6 +44,12 @@ app.use('/docs', docsRoutes);
 app.use('/api/ae', aeRoutes);
 app.use('/support', supportRoutes);
 
-app.listen(config.port, () => {
-  console.log(`kvnbbg.fr API running on http://0.0.0.0:${config.port}`);
-});
+const isVercelRuntime = process.env.VERCEL === '1';
+
+if (!isVercelRuntime) {
+  app.listen(config.port, () => {
+    console.log(`kvnbbg.fr API running on http://0.0.0.0:${config.port}`);
+  });
+}
+
+export default app;

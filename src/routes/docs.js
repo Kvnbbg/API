@@ -27,6 +27,36 @@ router.get('/', (req, res) => {
       'AE-UIC-IPAY',
       'CSP-Seller'
     ],
+    agentic_workflow: {
+      summary:
+        "Les pratiques recommandées (fichiers CLAUDE.md, intervention en temps réel via Échap, sous-agents pour le parallèle) s'alignent avec les recommandations officielles d'Anthropic.",
+      claude_md: {
+        purpose:
+          'Conserver le contexte projet, les conventions, et les décisions clés à proximité du code.',
+        location:
+          'Placer un CLAUDE.md à la racine et des fichiers spécifiques dans les sous-dossiers critiques.'
+      },
+      realtime_intervention: {
+        shortcut: 'Échap',
+        goal:
+          'Interrompre ou réorienter rapidement un agent lors de dérives, pour maintenir la qualité et la sécurité.'
+      },
+      parallel_agents: {
+        goal:
+          'Paralléliser la recherche, la refactorisation, et les tests pour réduire le temps global.',
+        guardrails:
+          'Définir un périmètre clair et des points de synchronisation pour éviter les conflits.'
+      }
+    },
+    vercel_deploy: {
+      goal:
+        'Déploiement Vercel simplifié via vercel.json et runtime serverless pour Express.',
+      steps: [
+        'Configurer les variables .env dans Vercel.',
+        'Déployer via `vercel` ou le dashboard.',
+        'Vérifier /docs pour la checklist agentique.'
+      ]
+    },
     affiliate: {
       endpoints: [
         'aliexpress.affiliate.product.shipping.get',
