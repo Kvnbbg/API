@@ -11,13 +11,19 @@ export function renderLandingPage(payload) {
     <style>
       :root {
         color-scheme: dark;
-        --bg: #0b0f1a;
-        --panel: rgba(17, 24, 39, 0.9);
+        --bg: #070b14;
+        --panel: rgba(15, 23, 42, 0.82);
         --accent: #7c5cff;
         --accent-2: #22d3ee;
+        --accent-3: #f97316;
         --text: #e5e7eb;
         --muted: #9ca3af;
         --success: #10b981;
+        --border: rgba(124, 92, 255, 0.24);
+        --radius-lg: 22px;
+        --radius-md: 16px;
+        --radius-sm: 12px;
+        --shadow: 0 24px 48px rgba(2, 6, 23, 0.45);
         font-family: "Inter", "Segoe UI", system-ui, sans-serif;
       }
 
@@ -32,7 +38,9 @@ export function renderLandingPage(payload) {
 
       body {
         margin: 0;
-        background: radial-gradient(circle at 20% 20%, #1f2a44, var(--bg));
+        background: radial-gradient(circle at 18% 18%, rgba(124, 92, 255, 0.2), transparent 55%),
+          radial-gradient(circle at 80% 12%, rgba(34, 211, 238, 0.18), transparent 48%),
+          var(--bg);
         color: var(--text);
         min-height: 100vh;
         overflow-x: hidden;
@@ -48,11 +56,22 @@ export function renderLandingPage(payload) {
         pointer-events: none;
       }
 
-      .grid::before {
+      .grid-lines {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(transparent 95%, rgba(148, 163, 184, 0.08) 96%),
+          linear-gradient(90deg, transparent 95%, rgba(148, 163, 184, 0.08) 96%);
+        background-size: 80px 80px;
+        mask-image: radial-gradient(circle at top, rgba(0, 0, 0, 0.8), transparent 70%);
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .grid-lines::after {
         content: "";
         position: absolute;
         inset: -120px 0 auto;
-        height: 220px;
+        height: 240px;
         background: radial-gradient(circle, rgba(124, 92, 255, 0.25), transparent 70%);
         filter: blur(40px);
         opacity: 0.6;
@@ -68,73 +87,152 @@ export function renderLandingPage(payload) {
 
       header {
         position: relative;
-        padding: 56px 10vw 24px;
+        padding: 64px 0 32px;
         z-index: 1;
       }
 
-      .badge {
+      .shell {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 6vw 48px;
+        z-index: 1;
+      }
+
+      .chip {
         display: inline-flex;
         align-items: center;
         gap: 8px;
         padding: 6px 14px;
         border-radius: 999px;
+        font-size: 0.8rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+        background: rgba(148, 163, 184, 0.12);
+        color: var(--muted);
+      }
+
+      .chip--accent {
         background: rgba(124, 92, 255, 0.2);
         color: var(--accent-2);
-        font-size: 0.85rem;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
+        border-color: rgba(124, 92, 255, 0.35);
       }
 
-      h1 {
-        margin: 16px 0 8px;
-        font-size: clamp(2rem, 4vw, 3.25rem);
+      .chip--muted {
+        background: rgba(15, 23, 42, 0.8);
+        border-color: rgba(148, 163, 184, 0.2);
+        color: var(--muted);
       }
 
-      p.lead {
+      .hero {
+        display: grid;
+        gap: 24px;
+        align-items: center;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .hero-copy h1 {
+        margin: 16px 0 12px;
+        font-size: clamp(2.2rem, 4vw, 3.35rem);
+      }
+
+      .hero-copy p {
         margin: 0;
         color: var(--muted);
-        max-width: 640px;
+        max-width: 560px;
         font-size: 1.05rem;
       }
 
+      .lead {
+        color: var(--muted);
+      }
+
+      .hero-panel {
+        background: var(--panel);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+      }
+
+      .hero-panel h2 {
+        margin: 0 0 10px;
+        font-size: 1.1rem;
+      }
+
+      .hero-panel p {
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .hero-meta .chip {
+        letter-spacing: 0.02em;
+        text-transform: none;
+        font-size: 0.78rem;
+      }
+
+      .metrics {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin: 24px 0 40px;
+      }
+
+      .metric-card {
+        background: rgba(15, 23, 42, 0.72);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        backdrop-filter: blur(8px);
+        box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.12);
+      }
+
+      .metric-label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .metric-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
       main {
-        padding: 24px 10vw 64px;
         position: relative;
         z-index: 1;
       }
 
       .toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         align-items: center;
-        justify-content: space-between;
         margin-bottom: 24px;
       }
 
-      .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 6px 12px;
-        background: rgba(16, 185, 129, 0.15);
-        color: var(--success);
-        border-radius: 999px;
-        font-size: 0.85rem;
+      .toolbar-copy h2 {
+        margin: 0 0 6px;
+        font-size: 1.3rem;
       }
 
-      .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--success);
-        box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
-        animation: pulse 2s ease-in-out infinite;
-      }
-
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 0.8; }
-        50% { transform: scale(1.6); opacity: 1; }
+      .toolbar-copy p {
+        margin: 0;
+        color: var(--muted);
       }
 
       @keyframes float {
@@ -146,6 +244,7 @@ export function renderLandingPage(payload) {
         display: flex;
         gap: 12px;
         flex-wrap: wrap;
+        justify-content: flex-end;
       }
 
       button {
@@ -153,7 +252,7 @@ export function renderLandingPage(payload) {
         background: linear-gradient(135deg, var(--accent), var(--accent-2));
         color: #0b0f1a;
         padding: 10px 18px;
-        border-radius: 12px;
+        border-radius: var(--radius-sm);
         font-weight: 600;
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -172,9 +271,9 @@ export function renderLandingPage(payload) {
 
       .card {
         background: var(--panel);
-        border-radius: 18px;
+        border-radius: var(--radius-md);
         padding: 18px;
-        border: 1px solid rgba(124, 92, 255, 0.2);
+        border: 1px solid var(--border);
         backdrop-filter: blur(12px);
         transition: transform 0.25s ease, border 0.25s ease;
         position: relative;
@@ -203,21 +302,11 @@ export function renderLandingPage(payload) {
         margin: 0 0 8px;
       }
 
-      .tag {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 999px;
-        font-size: 0.78rem;
-        color: var(--muted);
-        background: rgba(148, 163, 184, 0.1);
-        margin-bottom: 8px;
-      }
-
       details {
         margin-top: 12px;
         background: rgba(15, 23, 42, 0.6);
         padding: 10px 12px;
-        border-radius: 12px;
+        border-radius: var(--radius-sm);
         border: 1px dashed rgba(148, 163, 184, 0.2);
       }
 
@@ -240,7 +329,7 @@ export function renderLandingPage(payload) {
         bottom: 24px;
         background: rgba(17, 24, 39, 0.92);
         padding: 12px 16px;
-        border-radius: 12px;
+        border-radius: var(--radius-sm);
         border: 1px solid rgba(124, 92, 255, 0.35);
         color: var(--text);
         box-shadow: 0 16px 32px rgba(15, 23, 42, 0.55);
@@ -265,42 +354,112 @@ export function renderLandingPage(payload) {
         pointer-events: none;
       }
 
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
       @keyframes drift {
         from { transform: translateY(0) scale(1); opacity: 1; }
         to { transform: translateY(-140px) scale(0.4); opacity: 0; }
       }
 
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.8; }
+        50% { transform: scale(1.6); opacity: 1; }
+      }
+
       footer {
-        padding: 24px 10vw 40px;
+        padding: 24px 0 40px;
         color: var(--muted);
         font-size: 0.9rem;
+      }
+
+      .footer-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      @media (max-width: 720px) {
+        .actions {
+          justify-content: flex-start;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .glow,
+        .grid-lines::after,
+        .status-dot,
+        .drift {
+          animation: none;
+        }
+
+        button,
+        .card {
+          transition: none;
+        }
       }
     </style>
   </head>
   <body>
     <div class="glow"></div>
-    <header>
-      <span class="badge">Quantum-ready API</span>
-      <h1>${name}</h1>
-      <p class="lead">Daily-ready console with live payload previews, animated status feedback, and zero-break fallback JSON.</p>
-    </header>
-    <main>
-      <div class="toolbar">
-        <div class="status-pill">
-          <span class="status-dot"></span>
-          <span>Service status: ${status} • v${version}</span>
+    <div class="grid-lines"></div>
+    <div class="shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <span class="chip chip--accent">Quantum-ready API</span>
+          <h1>${name}</h1>
+          <p class="lead">Daily-ready console with live payload previews, animated status feedback, and zero-break fallback JSON.</p>
         </div>
-        <div class="actions">
-          <button id="refresh">Refresh live payloads</button>
-          <button id="toggle">Toggle payload view</button>
+        <div class="hero-panel">
+          <h2>Operational pulse</h2>
+          <p>Smart surfaces for quick checks and low-friction debug workflows.</p>
+          <div class="hero-meta">
+            <span class="chip chip--muted">Zero downtime</span>
+            <span class="chip chip--muted">Live JSON</span>
+            <span class="chip chip--muted">Instant refresh</span>
+          </div>
         </div>
-      </div>
-      <section class="grid" id="cards"></section>
-    </main>
-    <div class="toast" id="toast">Payloads refreshed.</div>
-    <footer>
-      <div>Available sections: ${sections.join(' • ')}</div>
-    </footer>
+      </header>
+      <section class="metrics">
+        <article class="metric-card">
+          <span class="metric-label">Service status</span>
+          <span class="metric-value"><span class="status-dot"></span>${status}</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Version</span>
+          <span class="metric-value">v${version}</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Sections tracked</span>
+          <span class="metric-value">${sections.length} categories</span>
+        </article>
+      </section>
+      <main>
+        <div class="toolbar">
+          <div class="toolbar-copy">
+            <h2>Live endpoint previews</h2>
+            <p>Peek into the API responses without leaving the landing console.</p>
+          </div>
+          <div class="actions">
+            <button id="refresh">Refresh live payloads</button>
+            <button id="toggle">Toggle payload view</button>
+          </div>
+        </div>
+        <section class="grid" id="cards"></section>
+      </main>
+      <div class="toast" id="toast">Payloads refreshed.</div>
+      <footer>
+        <div class="footer-list">
+          ${sections.map((section) => `<span class="chip chip--muted">${section}</span>`).join('')}
+        </div>
+      </footer>
+    </div>
     <script>
       const endpoints = [
         { id: 'app-console', label: 'App Console', description: 'Ownership & navigation links.', url: '/app-console' },
@@ -319,7 +478,7 @@ export function renderLandingPage(payload) {
         const card = document.createElement('article');
         card.className = 'card';
         card.innerHTML = [
-          '<span class="tag">', endpoint.url, '</span>',
+          '<span class="chip chip--muted">', endpoint.url, '</span>',
           '<h3>', endpoint.label, '</h3>',
           '<p>', endpoint.description, '</p>',
           '<details open>',
