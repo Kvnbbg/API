@@ -10,14 +10,9 @@ import aeRoutes from './routes/ae.js';
 import supportRoutes from './routes/support.js';
 import { renderLandingPage } from './services/ui.js';
 
-const app = express();
-
-app.use(cors());
-app.use(express.json({ limit: '1mb' }));
-app.use(morgan('dev'));
-
-app.get('/', (req, res) => {
-  const payload = {
+const CONSTANTS = {
+  jsonBodyLimit: '1mb',
+  landing: {
     name: 'kvnbbg.fr API',
     version: '0.1.0',
     status: 'ok',
@@ -28,7 +23,43 @@ app.get('/', (req, res) => {
       '/api/ae/*',
       '/support/*'
     ]
-  };
+  }
+};
+
+const logger = {
+  info(message, meta = {}) {
+    const entry = {
+      level: 'info',
+      message,
+      ...meta,
+      timestamp: new Date().toISOString()
+    };
+    process.stdout.write(`${JSON.stringify(entry)}\n`);
+  },
+  error(message, meta = {}) {
+    const entry = {
+      level: 'error',
+      message,
+      ...meta,
+      timestamp: new Date().toISOString()
+    };
+    process.stderr.write(`${JSON.stringify(entry)}\n`);
+  }
+};
+
+const app = express();
+
+app.use(cors());
+app.use(express.json({ limit: CONSTANTS.jsonBodyLimit }));
+app.use(morgan('dev'));
+
+/**
+ * Respond with the landing payload as JSON or HTML.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+const handleRootRequest = (req, res) => {
+  const payload = { ...CONSTANTS.landing };
 
   if (req.accepts(['html', 'json']) === 'html') {
     res.type('html').send(renderLandingPage(payload));
@@ -36,7 +67,9 @@ app.get('/', (req, res) => {
   }
 
   res.json(payload);
-});
+};
+
+app.get('/', handleRootRequest);
 
 app.use('/app-console', appRoutes);
 app.use('/announcement', announcementRoutes);
@@ -48,7 +81,10 @@ const isVercelRuntime = process.env.VERCEL === '1';
 
 if (!isVercelRuntime) {
   app.listen(config.port, () => {
-    console.log(`kvnbbg.fr API running on http://0.0.0.0:${config.port}`);
+    logger.info('kvnbbg.fr API running', {
+      host: '0.0.0.0',
+      port: config.port
+    });
   });
 }
 
