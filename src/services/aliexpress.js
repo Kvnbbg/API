@@ -3,9 +3,17 @@ import crypto from 'crypto';
 import qs from 'qs';
 import { config, ensureAliExpressCredentials } from '../config.js';
 
+const CONSTANTS = {
+  timeoutMs: 10000,
+  contentType: {
+    json: 'application/json',
+    form: 'application/x-www-form-urlencoded;charset=utf-8'
+  }
+};
+
 const client = axios.create({
   baseURL: config.ae.baseUrl,
-  timeout: 10000
+  timeout: CONSTANTS.timeoutMs
 });
 
 const DEFAULT_TOP_PARAMS = {
@@ -67,7 +75,7 @@ async function callTopApi(method, businessParams = {}) {
     qs.stringify(payload),
     {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+        'Content-Type': CONSTANTS.contentType.form
       }
     }
   );
@@ -86,7 +94,7 @@ async function callRestPath(path, data = {}, options = {}) {
     data: method === 'GET' ? undefined : normalized,
     params: method === 'GET' ? normalized : undefined,
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': CONSTANTS.contentType.json,
       ...options.headers
     }
   });
